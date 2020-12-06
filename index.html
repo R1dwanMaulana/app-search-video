@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search video youtube</title>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<body>
+    <div id="app">
+        <!-- <input type="text" v-model="url"> -->
+        <div>
+            <nav class="navbar navbar-light bg-light">
+                <form class="form-inline">
+                  <input class="form-control mr-sm-2" type="search" v-model="katakunci" placeholder="masukkan keyword" aria-label="Search">
+                </form>
+              </nav>
+        </div>
+        
+        <table class="table table-striped table-dark">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">judul video</th>
+                <th scope="col">LINK</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(hasil,indeks) in daftarHasil" :key="indeks">
+                    <td v-html="hasil.text"></td>
+                    <td>
+                        <button type="button" class="btn btn-primary" href="url+'&t='+hasil.start+'s'" target="_blank">tonton</button>
+                    </td>
+                </tr>
+            </tbody>
+          </table>
+          
+        <div class="pagination">
+            <div class="pagination-left">
+                Total hasil pencarian: <span class="badge badge-info">{{paginasi.total}}</span>
+            </div>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-end">
+                  <li class="page-item">
+                    <a class="page-link" @click="firstKlik" :disabled="!paginasi.first" class="pertama">First</a>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" @click="prevKlik" :disabled="!paginasi.prev" class="sebelumnya">Previous</a>
+                  </li>
+                  <li class="page-item"><a class="page-link" href="#">{{paginasi.page}}</a></li>              
+                  <li class="page-item">
+                    <a class="page-link" @click="nextKlik" :disabled="!paginasi.next" class="selanjutnya">Next</a>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" @click="lastKlik" :disabled="!paginasi.last" class="selanjutnya">Last</a>
+                  </li>
+                </ul>
+              </nav>
+        </div>
+        <!-- <pre>{{stringPaginasi}}</pre>
+        <pre>{{stringDaftarHasil}}</pre> -->
+    </div>
+    <style>
+    .pagination-left {
+        width: 80%;
+        float: left;
+    }
+
+    .pagination-right {
+        margin-left: auto;
+    }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                url: 'https://www.youtube.com/watch?v=klnvttPfOUM',
+                katakunci: '',
+                daftarHasil: [],
+                paginasi: {
+                    first: null,
+                    last: null,
+                    prev: null,
+                    next: null,
+                    total: 0,
+                    page: 0
+                }
+            },
+            computed: {
+                // stringDaftarHasil() {
+                //     return (param) => {
+                //         return JSON.stringify(param, null, 2)
+                //     }
+                // },
+                stringPaginasi() {
+                    return JSON.stringify(this.paginasi, null, 2)
+                },
+                stringDaftarHasil() {
+                    return JSON.stringify(this.daftarHasil, null, 2)
+                }
+            },
+            watch: {
+                // katakunci(katakunci) {
+                //     console.log(katakunci)
+                // }
+                katakunci: pDebounce(function katakunci(katakunci) {
+                    this.cari(katakunci, this.url)
+                }, 250)
+            },
+            methods: {
+                async cari(katakunci, url, paginasi) {
+                    let urlApi =
+                        `https://cari-teks-video-api.vercel.app/api/search?q=${katakunci}&url=${encodeURIComponent(url)}`
+                    if (paginasi) {
+                        urlApi = paginasi
+                    }
+                    const respon = await fetch(urlApi).then(_respon => {
+                        if (_respon.ok) {
+                            return _respon.json()
+                        }
+                        return []
+                    })
+                    this.daftarHasil = respon.data
+                    this.paginasi.first = respon.first
+                    this.paginasi.prev = respon.prev
+                    this.paginasi.next = respon.next
+                    this.paginasi.last = respon.last
+                    this.paginasi.total = respon.total
+                    this.paginasi.page = respon.page
+                },
+                bersihkan() {
+
+                },
+                firstKlik() {
+                    this.cari(this.katakunci, this.url, this.paginasi.first)
+                },
+                prevKlik() {
+                    this.cari(this.katakunci, this.url, this.paginasi.prev)
+                },
+                nextKlik() {
+                    this.cari(this.katakunci, this.url, this.paginasi.next)
+                },
+                lastKlik() {
+                    this.cari(this.katakunci, this.url, this.paginasi.last)
+                }
+            }
+        })
+    </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+
+</html>
