@@ -31,7 +31,7 @@
                 <tr v-for="(hasil,indeks) in daftarHasil" :key="indeks">
                     <td v-html="hasil.text"></td>
                     <td>
-                        <button type="button" class="btn btn-primary" href="url+'&t='+hasil.start+'s'" target="_blank">tonton</button>
+                        <button type="button" class="btn btn-primary" :href="url+'&t='+hasil.start+'s'" target="_blank">tonton</button>
                     </td>
                 </tr>
             </tbody>
