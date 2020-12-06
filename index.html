@@ -31,7 +31,7 @@
                 <tr v-for="(hasil,indeks) in daftarHasil" :key="indeks">
                     <td v-html="hasil.text"></td>
                     <td>
-                        <button type="button" class="btn btn-primary" :href="url+'&t='+hasil.start+'s'" target="_blank">tonton</button>
+                        <a :href="url+'&t='+hasil.start+'s'" target="_blank"><button type="button" class="btn btn-primary">tonton</button></a>
                     </td>
                 </tr>
             </tbody>
@@ -59,8 +59,7 @@
                 </ul>
               </nav>
         </div>
-        <!-- <pre>{{stringPaginasi}}</pre>
-        <pre>{{stringDaftarHasil}}</pre> -->
+
     </div>
     <style>
     .pagination-left {
